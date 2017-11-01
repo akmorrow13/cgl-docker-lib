@@ -7,9 +7,7 @@ RUN mkdir /opt/cgl-docker-lib
 COPY mango /opt/cgl-docker-lib/mango
 
 # copy spark
-RUN ls /home
 COPY apache-spark /opt/cgl-docker-lib/apache-spark
-
 
 ENV SPARK_HOME /opt/cgl-docker-lib/apache-spark
 
@@ -33,7 +31,7 @@ RUN apt-get update && apt-get install -y \
   python-pip \
   npm \
   nodejs \
-  python-tk 
+  python-tk
 
 RUN ln -s /usr/bin/nodejs /usr/bin/node
 

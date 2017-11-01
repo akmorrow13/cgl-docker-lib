@@ -8,18 +8,21 @@ build_number ?= none
 git_commit ?= $(shell git log --pretty=oneline -n 1 -- ../mango | cut -f1 -d " ")
 name = quay.io/ucsc_cgl/mango
 tag = 0.0.1--${git_commit}
+# docker_build_id ?= $(shell docker create ${name}-build:${tag})
 
 
 # Steps
-build: ${build_output} ${build_tool}
+build: ${build_output} #${build_tool}
 
 ${build_output}: ${build_path}/Dockerfile
 	cd ../spark-and-maven && $(MAKE) build
 	cd ${build_path} && docker build -t ${name}-build:${tag} .
-	echo ${runtime_fullpath}
-	docker run -v ${runtime_fullpath}:/data ${name}-build:${tag} cp -r /home/mango /data/mango
-	docker run -v ${runtime_fullpath}:/data ${name}-build:${tag} cp -r /opt/apache-spark /data/apache-spark
-
+	$(eval docker_build_id=$(shell docker create ${name}-build:${tag}))
+	@true # keeps maake from saying "nothing to be done"
+	echo ${docker_build_id}
+	docker cp ${docker_build_id}:/home/mango ${runtime_fullpath}
+	docker cp ${docker_build_id}:/opt/apache-spark ${runtime_fullpath}
+	docker rm -v ${docker_build_id}
 
 ${build_tool}: ${build_output} ${runtime_path}/Dockerfile
 	cd ${runtime_path} && docker build -t ${name}:${tag} .
